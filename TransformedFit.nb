@@ -1,0 +1,1278 @@
+(* Content-type: application/vnd.wolfram.mathematica *)
+
+(*** Wolfram Notebook File ***)
+(* http://www.wolfram.com/nb *)
+
+(* CreatedBy='Mathematica 8.0' *)
+
+(*CacheID: 234*)
+(* Internal cache information:
+NotebookFileLineBreakTest
+NotebookFileLineBreakTest
+NotebookDataPosition[       157,          7]
+NotebookDataLength[     55245,       1269]
+NotebookOptionsPosition[     54208,       1229]
+NotebookOutlinePosition[     54573,       1245]
+CellTagsIndexPosition[     54530,       1242]
+WindowFrame->Normal*)
+
+(* Beginning of Notebook Content *)
+Notebook[{
+Cell[BoxData[{
+ RowBox[{
+  RowBox[{
+   RowBox[{"BeginPackage", "[", "\"\<TransformedFit`\>\"", "]"}], ";"}], 
+  "\[IndentingNewLine]"}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{"ClearAll", "[", "TransformedParameter", "]"}], 
+  ";"}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{
+   RowBox[{"SetAttributes", "[", 
+    RowBox[{"TransformedParameter", ",", "HoldRest"}], "]"}], ";"}], 
+  "\[IndentingNewLine]"}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{
+   RowBox[{"Unprotect", "[", "TransformedFit", "]"}], ";", 
+   RowBox[{"ClearAll", "[", "TransformedFit", "]"}], ";"}], 
+  "\[IndentingNewLine]"}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{
+   RowBox[{"Unprotect", "[", "ComplexFit", "]"}], ";", 
+   RowBox[{"ClearAll", "[", "ComplexFit", "]"}], ";"}], 
+  "\[IndentingNewLine]"}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{
+   RowBox[{"Begin", "[", "\"\<`Private`\>\"", "]"}], ";"}], 
+  "\[IndentingNewLine]", "\n", 
+  RowBox[{"(*", " ", 
+   RowBox[{
+   "Transform", " ", "numeric", " ", "quantities", " ", "rather", " ", "than",
+     " ", "renaming", " ", "them"}], " ", "*)"}]}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{
+   RowBox[{
+    RowBox[{"TransformedParameter", "[", 
+     RowBox[{"t_", ",", 
+      RowBox[{"num_", "?", "NumericQ"}]}], "]"}], ":=", 
+    RowBox[{"t", "[", "num", "]"}]}], ";"}], "\[IndentingNewLine]", 
+  "\[IndentingNewLine]", 
+  RowBox[{"(*", " ", 
+   RowBox[{
+   "Generate", " ", "unique", " ", "symbols", " ", "for", " ", "each", " ", 
+    "transformed", " ", 
+    RowBox[{"parameter", " ", "--"}], " ", "this", " ", "avoids", " ", 
+    "difficulties", "\[IndentingNewLine]", "caused", " ", "by", " ", 
+    "overzealous", " ", "common", " ", "subexpression", " ", "elimination", 
+    " ", "when", " ", "the", " ", "models", " ", "are", " ", "compiled"}], 
+   " ", "*)"}]}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{
+   RowBox[{
+    RowBox[{"TransformedParameter", "[", 
+     RowBox[{"t_", ",", "p_"}], "]"}], ":=", 
+    RowBox[{
+     RowBox[{"TransformedParameter", "[", 
+      RowBox[{"t", ",", "p"}], "]"}], "=", "\[IndentingNewLine]", 
+     RowBox[{"With", "[", 
+      RowBox[{
+       RowBox[{"{", 
+        RowBox[{"sym", "=", 
+         RowBox[{"Unique", "[", 
+          RowBox[{"\"\<TransformedParameter$\>\"", ",", "Temporary"}], 
+          "]"}]}], "}"}], ",", "\[IndentingNewLine]", 
+       RowBox[{"(*", " ", 
+        RowBox[{
+        "Unset", " ", "memo", " ", "when", " ", "cleared", " ", "to", " ", 
+         "facilitate", " ", "garbage", " ", "collection"}], " ", "*)"}], 
+       "\[IndentingNewLine]", 
+       RowBox[{
+        RowBox[{"sym", "/:", 
+         RowBox[{"clear", ":", 
+          RowBox[{
+           RowBox[{"(", 
+            RowBox[{"Clear", "|", "ClearAll", "|", "Remove"}], ")"}], "[", 
+           RowBox[{"___", ",", "sym", ",", "___"}], "]"}]}], ":=", 
+         "\[IndentingNewLine]", 
+         RowBox[{"clear", "/;", 
+          RowBox[{"(", 
+           RowBox[{
+            RowBox[{
+             RowBox[{"TransformedParameter", "[", 
+              RowBox[{"t", ",", "p"}], "]"}], "=."}], ";", "True"}], 
+           ")"}]}]}], ";", "\[IndentingNewLine]", "\[IndentingNewLine]", 
+        RowBox[{"(*", " ", 
+         RowBox[{
+         "Display", " ", "as", " ", "the", " ", "parameter", " ", "by", " ", 
+          "itself", " ", "if", " ", "the", " ", "transformation", " ", "is", 
+          " ", "Identity"}], " ", "*)"}], "\[IndentingNewLine]", 
+        RowBox[{"sym", "/:", 
+         RowBox[{"MakeBoxes", "[", 
+          RowBox[{"sym", ",", "form_"}], "]"}], ":=", "\[IndentingNewLine]", 
+         RowBox[{
+          RowBox[{"With", "[", 
+           RowBox[{
+            RowBox[{"{", 
+             RowBox[{"boxes", "=", 
+              RowBox[{"MakeBoxes", "[", 
+               RowBox[{"p", ",", "form"}], "]"}]}], "}"}], ",", 
+            "\[IndentingNewLine]", 
+            RowBox[{"InterpretationBox", "[", 
+             RowBox[{"boxes", ",", "sym"}], "]"}]}], "\[IndentingNewLine]", 
+           "]"}], "/;", 
+          RowBox[{"t", "===", "Identity"}]}]}], ";", "\[IndentingNewLine]", 
+        "\[IndentingNewLine]", 
+        RowBox[{"sym", "/:", 
+         RowBox[{"MakeBoxes", "[", 
+          RowBox[{"sym", ",", "form_"}], "]"}], ":=", "\[IndentingNewLine]", 
+         RowBox[{"With", "[", 
+          RowBox[{
+           RowBox[{"{", 
+            RowBox[{"boxes", "=", 
+             RowBox[{"MakeBoxes", "[", 
+              RowBox[{
+               RowBox[{"t", "[", "p", "]"}], ",", "form"}], "]"}]}], "}"}], 
+           ",", "\[IndentingNewLine]", 
+           RowBox[{"InterpretationBox", "[", 
+            RowBox[{"boxes", ",", "sym"}], "]"}]}], "\[IndentingNewLine]", 
+          "]"}]}], ";", "\[IndentingNewLine]", "\[IndentingNewLine]", 
+        "sym"}]}], "\[IndentingNewLine]", "]"}]}]}], ";"}], 
+  "\[IndentingNewLine]"}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{"ClearAll", "[", "$FitFunctions", "]"}], ";"}], "\n", 
+ RowBox[{
+  RowBox[{
+   RowBox[{"$FitFunctions", "=", 
+    RowBox[{"If", "[", 
+     RowBox[{
+      RowBox[{"$VersionNumber", "\[GreaterEqual]", "7"}], ",", 
+      "\[IndentingNewLine]", 
+      RowBox[{"{", 
+       RowBox[{"FindFit", ",", "NonlinearModelFit"}], "}"}], ",", 
+      "\[IndentingNewLine]", 
+      RowBox[{"{", "FindFit", "}"}]}], "\[IndentingNewLine]", "]"}]}], ";"}], 
+  "\[IndentingNewLine]"}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{
+   RowBox[{
+    RowBox[{"Options", "[", "TransformedFit", "]"}], "=", 
+    RowBox[{"{", "\[IndentingNewLine]", 
+     RowBox[{
+      RowBox[{"\"\<FitFunction\>\"", "\[Rule]", 
+       RowBox[{"First", "[", "$FitFunctions", "]"}]}], ",", 
+      "\[IndentingNewLine]", 
+      RowBox[{"\"\<Transformation\>\"", "\[Rule]", "Identity"}], ",", 
+      "\[IndentingNewLine]", 
+      RowBox[{"\"\<ParameterTransformation\>\"", "\[Rule]", "Identity"}], ",",
+       "\[IndentingNewLine]", 
+      RowBox[{"\"\<Hold\>\"", "\[Rule]", "False"}]}], "\[IndentingNewLine]", 
+     "}"}]}], ";"}], "\[IndentingNewLine]"}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{
+   RowBox[{
+    RowBox[{"TransformedFit", "::", "cons"}], "=", 
+    "\"\<The constraint(s), `1`, should be given in terms of the transformed \
+parameters only.\>\""}], ";"}], 
+  "\[IndentingNewLine]"}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{
+   RowBox[{
+    RowBox[{
+     RowBox[{"TransformedFit", "[", "\[IndentingNewLine]", 
+      RowBox[{"data_", ",", 
+       RowBox[{"{", 
+        RowBox[{"model_", ",", "cons_"}], "}"}], ",", "pars_", ",", "vars_", 
+       ",", "\[IndentingNewLine]", "opts___"}], "\[IndentingNewLine]", "]"}], 
+     "/;", 
+     RowBox[{"Internal`DependsOnQ", "[", 
+      RowBox[{"cons", ",", "pars"}], "]"}]}], ":=", "\[IndentingNewLine]", 
+    RowBox[{"Message", "[", 
+     RowBox[{
+      RowBox[{"TransformedFit", "::", "cons"}], ",", "cons"}], "]"}]}], ";"}],
+   "\n", "\[IndentingNewLine]", 
+  RowBox[{"(*", " ", 
+   RowBox[{
+   "Deal", " ", "with", " ", "data", " ", "given", " ", "as", " ", "ordinate",
+     " ", "values", " ", "only"}], " ", "*)"}]}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{
+   RowBox[{
+    RowBox[{"TransformedFit", "[", "\[IndentingNewLine]", 
+     RowBox[{
+      RowBox[{"data_", "?", "VectorQ"}], ",", "model_", ",", "pars_", ",", 
+      "vars_", ",", "\[IndentingNewLine]", 
+      RowBox[{"opts", ":", 
+       RowBox[{"OptionsPattern", "[", 
+        RowBox[{"{", 
+         RowBox[{"TransformedFit", ",", 
+          RowBox[{"Sequence", "@@", "$FitFunctions"}]}], "}"}], "]"}]}]}], 
+     "\[IndentingNewLine]", "]"}], ":=", "\[IndentingNewLine]", 
+    RowBox[{"TransformedFit", "[", "\[IndentingNewLine]", 
+     RowBox[{
+      RowBox[{"Transpose", "[", 
+       RowBox[{"{", 
+        RowBox[{
+         RowBox[{"Range", "@", 
+          RowBox[{"Length", "[", "data", "]"}]}], ",", "data"}], "}"}], "]"}],
+       ",", "model", ",", "pars", ",", "vars", ",", "\[IndentingNewLine]", 
+      "opts"}], "\[IndentingNewLine]", "]"}]}], ";"}], 
+  "\[IndentingNewLine]"}], "\n", 
+ RowBox[{
+  RowBox[{
+   RowBox[{
+    RowBox[{"TransformedFit", "[", "\[IndentingNewLine]", 
+     RowBox[{
+      RowBox[{"data_", "?", "MatrixQ"}], ",", 
+      RowBox[{
+       RowBox[{"{", 
+        RowBox[{"model_", ",", "cons_"}], "}"}], "|", 
+       RowBox[{"{", "model_", "}"}], "|", "model_"}], ",", "pars_", ",", 
+      "vars_", ",", "\[IndentingNewLine]", 
+      RowBox[{"opts", ":", 
+       RowBox[{"OptionsPattern", "[", 
+        RowBox[{"{", 
+         RowBox[{"TransformedFit", ",", 
+          RowBox[{"Sequence", "@@", "$FitFunctions"}]}], "}"}], "]"}]}]}], 
+     "\[IndentingNewLine]", "]"}], ":=", "\[IndentingNewLine]", 
+    RowBox[{"With", "[", 
+     RowBox[{
+      RowBox[{"{", "\[IndentingNewLine]", 
+       RowBox[{
+        RowBox[{"fitFunction", "=", 
+         RowBox[{
+          RowBox[{
+           RowBox[{"If", "[", 
+            RowBox[{
+             RowBox[{"MemberQ", "[", 
+              RowBox[{"$FitFunctions", ",", "#"}], "]"}], ",", "#", ",", 
+             RowBox[{"First", "[", "$FitFunctions", "]"}]}], "]"}], "&"}], 
+          " ", "@", " ", 
+          RowBox[{"OptionValue", "[", "\"\<FitFunction\>\"", "]"}]}]}], ",", 
+        "\[IndentingNewLine]", 
+        RowBox[{"transformations", "=", 
+         RowBox[{
+          RowBox[{"List", "@", 
+           RowBox[{"OptionValue", "[", "\"\<Transformation\>\"", "]"}]}], "~",
+           "Flatten", "~", "1"}]}]}], "\[IndentingNewLine]", "}"}], ",", 
+      "\[IndentingNewLine]", 
+      RowBox[{"Block", "[", 
+       RowBox[{
+        RowBox[{"{", "\[IndentingNewLine]", 
+         RowBox[{
+         "transformedData", ",", "\[IndentingNewLine]", 
+          "transformedParameters", ",", "unusedParameterMask", ",", 
+          "parameterRules", ",", "\[IndentingNewLine]", "transformedModel", 
+          ",", "\[IndentingNewLine]", "i"}], "\[IndentingNewLine]", "}"}], 
+        ",", "\[IndentingNewLine]", 
+        RowBox[{"(*", " ", 
+         RowBox[{"TRANSFORM", " ", "DATA"}], " ", "*)"}], 
+        "\[IndentingNewLine]", 
+        RowBox[{
+         RowBox[{"With", "[", 
+          RowBox[{
+           RowBox[{"{", "\[IndentingNewLine]", 
+            RowBox[{
+             RowBox[{"abscissae", "=", 
+              RowBox[{"Take", "[", 
+               RowBox[{"data", ",", "All", ",", 
+                RowBox[{"{", 
+                 RowBox[{"1", ",", 
+                  RowBox[{"-", "2"}]}], "}"}]}], "]"}]}], ",", 
+             "\[IndentingNewLine]", 
+             RowBox[{"ordinates", "=", 
+              RowBox[{"Take", "[", 
+               RowBox[{"data", ",", "All", ",", 
+                RowBox[{"{", 
+                 RowBox[{"-", "1"}], "}"}]}], "]"}]}]}], 
+            "\[IndentingNewLine]", "}"}], ",", "\[IndentingNewLine]", 
+           RowBox[{
+            RowBox[{"transformedData", "=", 
+             RowBox[{
+              RowBox[{"{", "\[IndentingNewLine]", 
+               RowBox[{
+                RowBox[{
+                 RowBox[{"ConstantArray", "[", 
+                  RowBox[{
+                   RowBox[{"Range", "@", 
+                    RowBox[{"Length", "[", "transformations", "]"}]}], ",", 
+                   RowBox[{"{", 
+                    RowBox[{
+                    RowBox[{"Length", "[", "abscissae", "]"}], ",", "1"}], 
+                    "}"}]}], "]"}], "~", "Transpose", "~", 
+                 RowBox[{"{", 
+                  RowBox[{"2", ",", "3", ",", "1"}], "}"}]}], ",", 
+                "\[IndentingNewLine]", 
+                RowBox[{"ConstantArray", "[", 
+                 RowBox[{"abscissae", ",", 
+                  RowBox[{"Length", "[", "transformations", "]"}]}], "]"}], 
+                ",", "\[IndentingNewLine]", 
+                RowBox[{"Through", "@", 
+                 RowBox[{"transformations", "[", "ordinates", "]"}]}]}], 
+               "\[IndentingNewLine]", "}"}], "~", "Flatten", "~", 
+              RowBox[{"{", 
+               RowBox[{
+                RowBox[{"{", 
+                 RowBox[{"2", ",", "3"}], "}"}], ",", 
+                RowBox[{"{", 
+                 RowBox[{"1", ",", "4"}], "}"}]}], "}"}]}]}], ";"}]}], 
+          "\[IndentingNewLine]", "]"}], ";", "\[IndentingNewLine]", 
+         "\[IndentingNewLine]", 
+         RowBox[{"(*", " ", 
+          RowBox[{"TRANSFORM", " ", "PARAMETERS"}], " ", "*)"}], 
+         "\[IndentingNewLine]", 
+         RowBox[{"transformedParameters", "=", 
+          RowBox[{
+           RowBox[{"Outer", "[", "\[IndentingNewLine]", 
+            RowBox[{
+            "TransformedParameter", ",", "\[IndentingNewLine]", 
+             "transformations", ",", 
+             RowBox[{
+              RowBox[{"{", "pars", "}"}], "~", "Flatten", "~", "1"}]}], 
+            "\[IndentingNewLine]", "]"}], "//", "Transpose"}]}], ";", 
+         "\[IndentingNewLine]", 
+         RowBox[{"With", "[", 
+          RowBox[{
+           RowBox[{"{", "\[IndentingNewLine]", 
+            RowBox[{"(*", " ", 
+             RowBox[{
+             "Original", " ", "and", " ", "transformed", " ", "parameters", 
+              " ", "without", " ", "initial", " ", "guesses"}], " ", "*)"}], 
+            "\[IndentingNewLine]", 
+            RowBox[{
+             RowBox[{"originalParameterNames", "=", 
+              RowBox[{"Replace", "[", 
+               RowBox[{"pars", ",", 
+                RowBox[{
+                 RowBox[{"{", 
+                  RowBox[{"p_", ",", 
+                   RowBox[{"__", "?", "NumericQ"}]}], "}"}], "\[RuleDelayed]",
+                  "p"}], ",", 
+                RowBox[{"{", "1", "}"}]}], "]"}]}], ",", 
+             "\[IndentingNewLine]", 
+             RowBox[{"transformedParameterNames", "=", 
+              RowBox[{"Replace", "[", 
+               RowBox[{"transformedParameters", ",", 
+                RowBox[{
+                 RowBox[{"{", 
+                  RowBox[{"p_", ",", 
+                   RowBox[{"__", "?", "NumericQ"}]}], "}"}], "\[RuleDelayed]",
+                  "p"}], ",", 
+                RowBox[{"{", "2", "}"}]}], "]"}]}]}], "\[IndentingNewLine]", 
+            "}"}], ",", "\[IndentingNewLine]", 
+           RowBox[{
+            RowBox[{"With", "[", 
+             RowBox[{
+              RowBox[{"{", "\[IndentingNewLine]", 
+               RowBox[{"(*", " ", 
+                RowBox[{
+                "Representations", " ", "of", " ", "the", " ", "original", 
+                 " ", "parameters", " ", "in", " ", "terms", " ", "of", " ", 
+                 "their", " ", "transformations"}], " ", "*)"}], 
+               "\[IndentingNewLine]", 
+               RowBox[{"parameterRepresentations", "=", 
+                RowBox[{
+                 RowBox[{
+                 "OptionValue", "[", "\"\<ParameterTransformation\>\"", "]"}],
+                  "@@@", "transformedParameterNames"}]}], 
+               "\[IndentingNewLine]", "}"}], ",", "\[IndentingNewLine]", 
+              RowBox[{
+               RowBox[{"unusedParameterMask", "=", 
+                RowBox[{"MapThread", "[", "\[IndentingNewLine]", 
+                 RowBox[{
+                  RowBox[{"Composition", "[", 
+                   RowBox[{"Thread", ",", "Unevaluated", ",", "FreeQ"}], 
+                   "]"}], ",", "\[IndentingNewLine]", 
+                  RowBox[{"{", 
+                   RowBox[{
+                   "parameterRepresentations", ",", 
+                    "transformedParameterNames"}], "}"}]}], 
+                 "\[IndentingNewLine]", "]"}]}], ";", "\[IndentingNewLine]", 
+               RowBox[{"Clear", "@@", 
+                RowBox[{"Flatten", "@", 
+                 RowBox[{"Pick", "[", 
+                  RowBox[{
+                  "transformedParameterNames", ",", "unusedParameterMask"}], 
+                  "]"}]}]}], ";", "\[IndentingNewLine]", 
+               RowBox[{"parameterRules", "=", 
+                RowBox[{"Thread", "[", 
+                 RowBox[{
+                 "originalParameterNames", "\[Rule]", 
+                  "parameterRepresentations"}], "]"}]}], ";"}]}], 
+             "\[IndentingNewLine]", "]"}], ";"}]}], "\[IndentingNewLine]", 
+          "]"}], ";", "\[IndentingNewLine]", "\[IndentingNewLine]", 
+         RowBox[{"(*", " ", 
+          RowBox[{"TRANSFORM", " ", "MODEL"}], " ", "*)"}], 
+         "\[IndentingNewLine]", 
+         RowBox[{"With", "[", 
+          RowBox[{
+           RowBox[{"{", "\[IndentingNewLine]", 
+            RowBox[{
+             RowBox[{"reparameterizedModel", "=", 
+              RowBox[{"model", "/.", "parameterRules"}]}], ",", 
+             "\[IndentingNewLine]", 
+             RowBox[{"KroneckerDelta", "=", 
+              RowBox[{
+               RowBox[{"If", "[", 
+                RowBox[{
+                 RowBox[{"Equal", "[", "##", "]"}], ",", "1", ",", "0"}], 
+                "]"}], "&"}]}]}], " ", 
+            RowBox[{"(*", " ", "compilable", " ", "*)"}], 
+            "\[IndentingNewLine]", "}"}], ",", "\[IndentingNewLine]", 
+           RowBox[{
+            RowBox[{"transformedModel", "=", 
+             RowBox[{"Inner", "[", "\[IndentingNewLine]", 
+              RowBox[{
+               RowBox[{
+                RowBox[{
+                 RowBox[{"#1", "[", "reparameterizedModel", "]"}], 
+                 RowBox[{"KroneckerDelta", "[", 
+                  RowBox[{"i", ",", "#2"}], "]"}]}], "&"}], ",", 
+               "\[IndentingNewLine]", "transformations", ",", 
+               RowBox[{"Range", "@", 
+                RowBox[{"Length", "[", "transformations", "]"}]}]}], 
+              "\[IndentingNewLine]", "]"}]}], ";"}]}], "\[IndentingNewLine]", 
+          "]"}], ";", "\[IndentingNewLine]", "\[IndentingNewLine]", 
+         RowBox[{"(*", " ", 
+          RowBox[{"PERFORM", " ", "FIT"}], " ", "*)"}], "\[IndentingNewLine]", 
+         RowBox[{
+          RowBox[{"If", "[", 
+           RowBox[{
+            RowBox[{"TrueQ", "@", 
+             RowBox[{"OptionValue", "[", "\"\<Hold\>\"", "]"}]}], ",", 
+            RowBox[{"Composition", "[", 
+             RowBox[{"Hold", ",", "fitFunction"}], "]"}], ",", 
+            "fitFunction"}], "]"}], "[", "\[IndentingNewLine]", 
+          RowBox[{"transformedData", ",", "\[IndentingNewLine]", 
+           RowBox[{"{", 
+            RowBox[{"transformedModel", ",", "cons"}], "}"}], ",", 
+           "\[IndentingNewLine]", 
+           RowBox[{
+            RowBox[{"Pick", "[", 
+             RowBox[{
+             "transformedParameters", ",", "unusedParameterMask", ",", 
+              "False"}], "]"}], "~", "Flatten", "~", "1"}], ",", 
+           "\[IndentingNewLine]", 
+           RowBox[{
+            RowBox[{"{", 
+             RowBox[{"i", ",", "vars"}], "}"}], "~", "Flatten", "~", "1"}], 
+           ",", "\[IndentingNewLine]", 
+           RowBox[{"FilterRules", "[", 
+            RowBox[{
+             RowBox[{"{", "opts", "}"}], ",", 
+             RowBox[{"Options", "[", "fitFunction", "]"}]}], "]"}]}], 
+          "\[IndentingNewLine]", "]"}]}]}], "\[IndentingNewLine]", "]"}]}], 
+     "\[IndentingNewLine]", "]"}]}], ";"}], "\n"}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{
+   RowBox[{"Protect", "[", "TransformedFit", "]"}], ";"}], 
+  "\[IndentingNewLine]"}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{"ClearAll", "[", "coordinateSystemRules", "]"}], 
+  ";"}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{
+   RowBox[{"coordinateSystemRules", "[", "\"\<Cartesian\>\"", "]"}], "=", 
+   RowBox[{"Sequence", "[", "\[IndentingNewLine]", 
+    RowBox[{
+     RowBox[{"\"\<Transformation\>\"", "\[Rule]", 
+      RowBox[{"{", 
+       RowBox[{"Re", ",", "Im"}], "}"}]}], ",", "\[IndentingNewLine]", 
+     RowBox[{"\"\<ParameterTransformation\>\"", "\[Rule]", 
+      RowBox[{"(", 
+       RowBox[{
+        RowBox[{"#1", "+", 
+         RowBox[{"I", " ", "#2"}]}], "&"}], ")"}]}]}], "\[IndentingNewLine]", 
+    "]"}]}], ";"}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{
+   RowBox[{"coordinateSystemRules", "[", "\"\<Polar\>\"", "]"}], "=", 
+   RowBox[{"Sequence", "[", "\[IndentingNewLine]", 
+    RowBox[{
+     RowBox[{"\"\<Transformation\>\"", "\[Rule]", 
+      RowBox[{"{", 
+       RowBox[{"Abs", ",", "Arg"}], "}"}]}], ",", "\[IndentingNewLine]", 
+     RowBox[{"\"\<ParameterTransformation\>\"", "\[Rule]", 
+      RowBox[{"(", 
+       RowBox[{
+        RowBox[{"#1", 
+         RowBox[{"Exp", "[", 
+          RowBox[{"I", "#2"}], "]"}]}], "&"}], ")"}]}]}], 
+    "\[IndentingNewLine]", "]"}]}], ";"}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{
+   RowBox[{"coordinateSystemRules", "[", "\"\<Real\>\"", "]"}], "=", 
+   RowBox[{"Sequence", "[", "\[IndentingNewLine]", 
+    RowBox[{
+     RowBox[{"\"\<Transformation\>\"", "\[Rule]", 
+      RowBox[{"{", 
+       RowBox[{"Re", ",", "Im"}], "}"}]}], ",", "\[IndentingNewLine]", 
+     RowBox[{"\"\<ParameterTransformation\>\"", "\[Rule]", 
+      RowBox[{"(", 
+       RowBox[{"#1", "&"}], ")"}]}]}], "\[IndentingNewLine]", "]"}]}], 
+  ";"}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{
+   RowBox[{
+    RowBox[{"coordinateSystemRules", "[", "\"\<Imaginary\>\"", "]"}], "=", 
+    RowBox[{"Sequence", "[", "\[IndentingNewLine]", 
+     RowBox[{
+      RowBox[{"\"\<Transformation\>\"", "\[Rule]", 
+       RowBox[{"{", 
+        RowBox[{"Re", ",", "Im"}], "}"}]}], ",", "\[IndentingNewLine]", 
+      RowBox[{"\"\<ParameterTransformation\>\"", "\[Rule]", 
+       RowBox[{"(", 
+        RowBox[{
+         RowBox[{"I", " ", "#2"}], "&"}], ")"}]}]}], "\[IndentingNewLine]", 
+     "]"}]}], ";"}], "\[IndentingNewLine]", 
+  RowBox[{"(*", " ", 
+   RowBox[{"Default", " ", "to", " ", "Cartesian", " ", "coordinates"}], " ", 
+   "*)"}]}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{
+   RowBox[{
+    RowBox[{"coordinateSystemRules", "[", "_", "]"}], "=", 
+    RowBox[{"coordinateSystemRules", "[", "\"\<Cartesian\>\"", "]"}]}], ";"}],
+   "\[IndentingNewLine]"}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{
+   RowBox[{
+    RowBox[{"Options", "[", "ComplexFit", "]"}], "=", 
+    RowBox[{"{", "\[IndentingNewLine]", 
+     RowBox[{"\"\<CoordinateSystem\>\"", "\[Rule]", "Automatic"}], 
+     "\[IndentingNewLine]", "}"}]}], ";"}], "\[IndentingNewLine]"}], "\n", 
+ RowBox[{
+  RowBox[{
+   RowBox[{
+    RowBox[{"ComplexFit", "[", "\[IndentingNewLine]", 
+     RowBox[{
+     "data_", ",", "model_", ",", "pars_", ",", "vars_", ",", 
+      "\[IndentingNewLine]", 
+      RowBox[{"opts", ":", 
+       RowBox[{"OptionsPattern", "[", 
+        RowBox[{"{", 
+         RowBox[{"ComplexFit", ",", "TransformedFit", ",", 
+          RowBox[{"Sequence", "@@", "$FitFunctions"}]}], "}"}], "]"}]}]}], 
+     "\[IndentingNewLine]", "]"}], ":=", "\[IndentingNewLine]", 
+    RowBox[{"TransformedFit", "[", "\[IndentingNewLine]", 
+     RowBox[{
+     "data", ",", "model", ",", "pars", ",", "vars", ",", 
+      "\[IndentingNewLine]", 
+      RowBox[{"coordinateSystemRules", "@", 
+       RowBox[{"OptionValue", "[", "\"\<CoordinateSystem\>\"", "]"}]}], ",", 
+      "\[IndentingNewLine]", 
+      RowBox[{"FilterRules", "[", 
+       RowBox[{
+        RowBox[{"{", "opts", "}"}], ",", 
+        RowBox[{"Except", "[", 
+         RowBox[{
+         "\"\<CoordinateSystem\>\"", "|", "\"\<Transformation\>\"", "|", 
+          "\"\<ParameterTransformation\>\""}], "]"}]}], "]"}]}], 
+     "\[IndentingNewLine]", "]"}]}], ";"}], 
+  "\[IndentingNewLine]"}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{
+   RowBox[{"Protect", "[", "ComplexFit", "]"}], ";"}], 
+  "\[IndentingNewLine]"}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{
+   RowBox[{"End", "[", "]"}], ";"}], 
+  "\[IndentingNewLine]"}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{"EndPackage", "[", "]"}], ";"}]}], "Input",
+ InitializationCell->True,
+ CellChangeTimes->{{3.556126336953125*^9, 3.5561263518125*^9}, {
+   3.55612638521875*^9, 3.556126391421875*^9}, {3.5561264223125*^9, 
+   3.556126434453125*^9}, {3.55612647190625*^9, 3.5561264871875*^9}, {
+   3.556126534703125*^9, 3.556126588875*^9}, {3.556126621953125*^9, 
+   3.556126632765625*^9}, {3.556126871234375*^9, 3.556126929140625*^9}, {
+   3.5561270039375*^9, 3.55612708478125*^9}, {3.556127249203125*^9, 
+   3.5561272519375*^9}, {3.556127328890625*^9, 3.55612733078125*^9}, {
+   3.55612819965625*^9, 3.556128201859375*^9}, {3.556128604453125*^9, 
+   3.556128629390625*^9}, {3.556128679046875*^9, 3.556128684234375*^9}, {
+   3.5561287718125*^9, 3.556128810125*^9}, {3.55612895678125*^9, 
+   3.556128963*^9}, 3.556129088953125*^9, {3.556129402640625*^9, 
+   3.556129404890625*^9}, {3.55612946271875*^9, 3.556129464765625*^9}, {
+   3.55612951584375*^9, 3.5561295351875*^9}, {3.556133279953125*^9, 
+   3.556133294171875*^9}, 3.5561369235*^9, {3.55613726471875*^9, 
+   3.556137268890625*^9}, {3.55613732796875*^9, 3.556137387046875*^9}, {
+   3.55613750959375*^9, 3.55613752984375*^9}, {3.5561378060625*^9, 
+   3.556137856046875*^9}, {3.556138750453125*^9, 3.556138855*^9}, {
+   3.5561389164375*^9, 3.55613892396875*^9}, {3.556140176859375*^9, 
+   3.5561401771875*^9}, {3.55614029553125*^9, 3.556140295828125*^9}, {
+   3.556140893421875*^9, 3.556140893640625*^9}, 3.556141252609375*^9, {
+   3.5563034829375*^9, 3.5563035160625*^9}, {3.55631361434375*^9, 
+   3.556313618203125*^9}, 3.556313682203125*^9, {3.556387353328125*^9, 
+   3.55638735434375*^9}, {3.556387415421875*^9, 3.556387415953125*^9}, {
+   3.55638760009375*^9, 3.556387671984375*^9}, {3.5563880699375*^9, 
+   3.556388114921875*^9}, {3.556398257375*^9, 3.556398305140625*^9}, {
+   3.556398450515625*^9, 3.556398462359375*^9}, {3.556398538125*^9, 
+   3.556398555765625*^9}, {3.556398591234375*^9, 3.556398602296875*^9}, {
+   3.556398639734375*^9, 3.556398669296875*^9}, {3.55639882003125*^9, 
+   3.5563988348125*^9}, {3.556399005125*^9, 3.556399010578125*^9}, {
+   3.5563991175*^9, 3.556399122734375*^9}, {3.556399623765625*^9, 
+   3.556399656265625*^9}, 3.556399700375*^9, {3.55640163478125*^9, 
+   3.55640163528125*^9}, {3.556401784203125*^9, 3.55640178465625*^9}, {
+   3.55657495746875*^9, 3.556574965046875*^9}, {3.556575004046875*^9, 
+   3.5565750045625*^9}, {3.556575158546875*^9, 3.55657520190625*^9}, {
+   3.55657523521875*^9, 3.556575244859375*^9}, {3.556575742421875*^9, 
+   3.5565757853125*^9}, {3.556576229921875*^9, 3.556576254359375*^9}, {
+   3.55657678371875*^9, 3.556576786171875*^9}, {3.556577480875*^9, 
+   3.556577481296875*^9}, {3.5565777339375*^9, 3.55657775078125*^9}, {
+   3.556577934671875*^9, 3.55657797896875*^9}, {3.556701655515625*^9, 
+   3.55670167321875*^9}, {3.556702451828125*^9, 3.5567024816875*^9}, {
+   3.556702512765625*^9, 3.5567025586875*^9}, {3.556702590328125*^9, 
+   3.55670261359375*^9}, {3.5567514583125*^9, 3.55675147846875*^9}, {
+   3.556751514390625*^9, 3.556751518015625*^9}, {3.556751605734375*^9, 
+   3.556751654140625*^9}, {3.55675168909375*^9, 3.5567517309375*^9}, {
+   3.556751801578125*^9, 3.5567518380625*^9}, {3.556751881296875*^9, 
+   3.556751937734375*^9}, {3.556751976375*^9, 3.55675197915625*^9}, {
+   3.556752117375*^9, 3.556752120171875*^9}, {3.556752182*^9, 
+   3.55675219709375*^9}, {3.556806619375*^9, 3.556806620296875*^9}}],
+
+Cell[TextData[{
+ StyleBox["The following are not yet supported:\n\t- Weights\n\t- Splitting \
+of ",
+  FontSize->16],
+ StyleBox["FittedModel", "Input"],
+ StyleBox["s returned into by ",
+  FontSize->16],
+ StyleBox["NonlinearModelFit", "Input"],
+ StyleBox[" into branches (currently still contain reference to ",
+  FontSize->16],
+ StyleBox["i", "Input"],
+ StyleBox[")\n\t- Different transformations for different parameters \
+(currently all parameters are transformed in the same way)",
+  FontSize->16]
+}], "Text",
+ CellFrame->{{0, 0}, {0, 0.5}},
+ CellChangeTimes->{{3.555464583109375*^9, 3.555464636703125*^9}, {
+  3.55546468803125*^9, 3.555464798625*^9}, {3.5554648350625*^9, 
+  3.555464868046875*^9}, {3.55546888278125*^9, 3.555468919859375*^9}, {
+  3.55554987846875*^9, 3.555549879265625*^9}, {3.556753454671875*^9, 
+  3.556753455265625*^9}, {3.5613083645*^9, 3.561308470296875*^9}, {
+  3.561626173453125*^9, 3.56162618078125*^9}, {3.561626219046875*^9, 
+  3.561626221421875*^9}, {3.561627288609375*^9, 3.561627303875*^9}}],
+
+Cell[CellGroupData[{
+
+Cell[BoxData[
+ RowBox[{"ComplexFit", "[", "\[IndentingNewLine]", 
+  RowBox[{
+   RowBox[{
+    RowBox[{"(", 
+     RowBox[{"17.381", "+", 
+      RowBox[{"53.249", "I"}]}], ")"}], 
+    RowBox[{
+     RowBox[{"Range", "[", "10", "]"}], "^", 
+     RowBox[{"(", 
+      RowBox[{"1.897", "+", 
+       RowBox[{"0.632", "I"}]}], ")"}]}]}], ",", "\[IndentingNewLine]", 
+   RowBox[{"a", " ", 
+    RowBox[{"x", "^", "b"}]}], ",", 
+   RowBox[{"{", 
+    RowBox[{"a", ",", "b"}], "}"}], ",", "x"}], "\[IndentingNewLine]", 
+  "]"}]], "Input",
+ CellChangeTimes->{{3.55509134534375*^9, 3.555091400875*^9}, 
+   3.555091676625*^9, {3.555161399140625*^9, 3.5551614125625*^9}, {
+   3.555161760109375*^9, 3.555161781984375*^9}, 3.555163843484375*^9, 
+   3.55516408065625*^9, {3.555164300984375*^9, 3.555164326796875*^9}, {
+   3.5551677296875*^9, 3.555167733421875*^9}, 3.555172117640625*^9, {
+   3.555172409296875*^9, 3.555172426515625*^9}, {3.555180747859375*^9, 
+   3.555180802015625*^9}, 3.555181186734375*^9, {3.555181563609375*^9, 
+   3.555181594328125*^9}, {3.555464073328125*^9, 3.55546408928125*^9}, {
+   3.555464976765625*^9, 3.555465004875*^9}, {3.55546506025*^9, 
+   3.555465064421875*^9}, {3.555468413609375*^9, 3.555468413921875*^9}, {
+   3.55546849475*^9, 3.555468539703125*^9}, {3.55546871990625*^9, 
+   3.55546874909375*^9}, {3.555468826546875*^9, 3.55546883828125*^9}, {
+   3.55546887240625*^9, 3.5554688731875*^9}, {3.555528947640625*^9, 
+   3.5555289545625*^9}, {3.55555813159375*^9, 3.555558142296875*^9}, {
+   3.55612488634375*^9, 3.556124890921875*^9}, 3.556124924359375*^9}],
+
+Cell[BoxData[
+ RowBox[{"{", 
+  RowBox[{
+   RowBox[{
+    InterpretationBox[
+     RowBox[{"Re", "[", "a", "]"}],
+     $CellContext`TransformedParameter$3], "\[Rule]", "17.380999999999975`"}],
+    ",", 
+   RowBox[{
+    InterpretationBox[
+     RowBox[{"Im", "[", "a", "]"}],
+     $CellContext`TransformedParameter$5], "\[Rule]", "53.24899999999996`"}], 
+   ",", 
+   RowBox[{
+    InterpretationBox[
+     RowBox[{"Re", "[", "b", "]"}],
+     $CellContext`TransformedParameter$4], "\[Rule]", "1.8970000000000005`"}],
+    ",", 
+   RowBox[{
+    InterpretationBox[
+     RowBox[{"Im", "[", "b", "]"}],
+     $CellContext`TransformedParameter$6], "\[Rule]", 
+    "0.6319999999999999`"}]}], "}"}]], "Output",
+ CellChangeTimes->{{3.556398310453125*^9, 3.556398312734375*^9}, 
+   3.556398488953125*^9, 3.556398557375*^9, 3.55639860521875*^9, {
+   3.55639865534375*^9, 3.556398675796875*^9}, 3.556398735609375*^9, 
+   3.556398835921875*^9, 3.5563988665625*^9, {3.556399014421875*^9, 
+   3.556399031734375*^9}, {3.55639912553125*^9, 3.5563991706875*^9}, 
+   3.55639947171875*^9, 3.556399661515625*^9, 3.556399727765625*^9, 
+   3.556400372890625*^9, 3.55640134334375*^9, {3.5564016413125*^9, 
+   3.55640166440625*^9}, 3.556401788859375*^9, 3.5564048290625*^9, 
+   3.55657526740625*^9, 3.5565758415*^9, 3.556576131375*^9, {
+   3.55657679596875*^9, 3.556576820359375*^9}, 3.556577824515625*^9, 
+   3.55675212421875*^9, 3.55675286228125*^9, 3.5567534581875*^9}]
+}, Open  ]],
+
+Cell[CellGroupData[{
+
+Cell[BoxData[
+ RowBox[{"ComplexFit", "[", "\[IndentingNewLine]", 
+  RowBox[{
+   RowBox[{"1", "/", 
+    RowBox[{"(", 
+     RowBox[{
+      RowBox[{"(", 
+       RowBox[{"17.381", "+", 
+        RowBox[{"53.249", "I"}]}], ")"}], 
+      RowBox[{
+       RowBox[{"Range", "[", "10", "]"}], "^", 
+       RowBox[{"(", 
+        RowBox[{"1.897", "+", 
+         RowBox[{"0.632", "I"}]}], ")"}]}]}], ")"}]}], ",", 
+   "\[IndentingNewLine]", 
+   RowBox[{"1", "/", 
+    RowBox[{"(", 
+     RowBox[{"a", " ", 
+      RowBox[{"x", "^", "b"}]}], ")"}]}], ",", 
+   RowBox[{"{", 
+    RowBox[{"a", ",", "b"}], "}"}], ",", "x"}], "\[IndentingNewLine]", 
+  "]"}]], "Input",
+ CellChangeTimes->{{3.55509134534375*^9, 3.555091400875*^9}, 
+   3.555091676625*^9, {3.555161399140625*^9, 3.5551614125625*^9}, {
+   3.555161760109375*^9, 3.555161781984375*^9}, 3.555163843484375*^9, 
+   3.55516408065625*^9, {3.555164300984375*^9, 3.555164326796875*^9}, {
+   3.5551677296875*^9, 3.555167733421875*^9}, 3.555172117640625*^9, {
+   3.555172409296875*^9, 3.555172426515625*^9}, {3.555180747859375*^9, 
+   3.555180802015625*^9}, 3.555181186734375*^9, {3.555181563609375*^9, 
+   3.555181594328125*^9}, {3.555464073328125*^9, 3.55546408928125*^9}, {
+   3.555464976765625*^9, 3.555465004875*^9}, {3.55546506025*^9, 
+   3.555465064421875*^9}, {3.555468413609375*^9, 3.555468413921875*^9}, {
+   3.55546849475*^9, 3.555468539703125*^9}, {3.55546871990625*^9, 
+   3.55546874909375*^9}, {3.555468826546875*^9, 3.55546883828125*^9}, {
+   3.55546887240625*^9, 3.5554688731875*^9}, {3.555528947640625*^9, 
+   3.5555289545625*^9}, {3.55555813159375*^9, 3.555558142296875*^9}, {
+   3.555559398421875*^9, 3.5555594060625*^9}}],
+
+Cell[BoxData[
+ RowBox[{"{", 
+  RowBox[{
+   RowBox[{
+    InterpretationBox[
+     RowBox[{"Re", "[", "a", "]"}],
+     $CellContext`TransformedParameter$3], "\[Rule]", "17.380999998260407`"}],
+    ",", 
+   RowBox[{
+    InterpretationBox[
+     RowBox[{"Im", "[", "a", "]"}],
+     $CellContext`TransformedParameter$5], "\[Rule]", "53.248999992086375`"}],
+    ",", 
+   RowBox[{
+    InterpretationBox[
+     RowBox[{"Re", "[", "b", "]"}],
+     $CellContext`TransformedParameter$4], "\[Rule]", "1.8970000029986431`"}],
+    ",", 
+   RowBox[{
+    InterpretationBox[
+     RowBox[{"Im", "[", "b", "]"}],
+     $CellContext`TransformedParameter$6], "\[Rule]", 
+    "0.6320000029875001`"}]}], "}"}]], "Output",
+ CellChangeTimes->{
+  3.55639831275*^9, 3.55639848896875*^9, 3.556398557390625*^9, 
+   3.556398605234375*^9, {3.556398655375*^9, 3.5563986758125*^9}, 
+   3.556398735625*^9, 3.5563988359375*^9, 3.5563988673125*^9, 
+   3.556399014453125*^9, 3.5563991255625*^9, 3.556399471734375*^9, 
+   3.55639966153125*^9, 3.55639972778125*^9, 3.556400372921875*^9, 
+   3.556401343359375*^9, 3.556401788875*^9, 3.556404829078125*^9, 
+   3.5565752674375*^9, 3.556575841515625*^9, 3.556576131390625*^9, {
+   3.556576795984375*^9, 3.556576820390625*^9}, 3.55657782453125*^9, 
+   3.556752124234375*^9, 3.5567528623125*^9, 3.556753458203125*^9}]
+}, Open  ]],
+
+Cell[CellGroupData[{
+
+Cell[BoxData[
+ RowBox[{"ComplexFit", "[", "\[IndentingNewLine]", 
+  RowBox[{
+   RowBox[{"Table", "[", 
+    RowBox[{
+     RowBox[{"{", 
+      RowBox[{"x", ",", 
+       RowBox[{
+        RowBox[{"(", 
+         RowBox[{"17.381", "+", 
+          RowBox[{"53.249", "I"}]}], ")"}], 
+        RowBox[{"x", "^", 
+         RowBox[{"(", 
+          RowBox[{"1.897", "+", 
+           RowBox[{"0.632", "I"}]}], ")"}]}]}]}], "}"}], ",", 
+     RowBox[{"{", 
+      RowBox[{"x", ",", 
+       RowBox[{"-", "10"}], ",", "10"}], "}"}]}], "]"}], ",", 
+   "\[IndentingNewLine]", 
+   RowBox[{"(", 
+    RowBox[{"a", " ", 
+     RowBox[{"x", "^", "b"}]}], ")"}], ",", 
+   RowBox[{"{", 
+    RowBox[{
+     RowBox[{"{", 
+      RowBox[{"a", ",", 
+       RowBox[{"20", "+", 
+        RowBox[{"50", "I"}]}]}], "}"}], ",", 
+     RowBox[{"{", 
+      RowBox[{"b", ",", 
+       RowBox[{"2", "+", 
+        RowBox[{"0.5", "I"}]}]}], "}"}]}], "}"}], ",", "x"}], 
+  "\[IndentingNewLine]", "]"}]], "Input",
+ CellChangeTimes->{{3.55509134534375*^9, 3.555091400875*^9}, 
+   3.555091676625*^9, {3.555161399140625*^9, 3.5551614125625*^9}, {
+   3.555161760109375*^9, 3.555161781984375*^9}, 3.555163843484375*^9, 
+   3.55516408065625*^9, {3.555164300984375*^9, 3.555164326796875*^9}, {
+   3.5551677296875*^9, 3.555167733421875*^9}, 3.555172117640625*^9, {
+   3.555172409296875*^9, 3.555172426515625*^9}, {3.555180747859375*^9, 
+   3.555180802015625*^9}, 3.555181186734375*^9, {3.555181563609375*^9, 
+   3.555181594328125*^9}, {3.555464073328125*^9, 3.55546408928125*^9}, {
+   3.555464976765625*^9, 3.555465004875*^9}, {3.55546506025*^9, 
+   3.555465064421875*^9}, {3.555468413609375*^9, 3.555468413921875*^9}, {
+   3.55546849475*^9, 3.555468539703125*^9}, {3.555468579515625*^9, 
+   3.555468611640625*^9}, {3.555468657109375*^9, 3.555468686765625*^9}, {
+   3.555468768984375*^9, 3.555468779171875*^9}, {3.555469099265625*^9, 
+   3.555469111921875*^9}, {3.55554740334375*^9, 3.555547508828125*^9}, {
+   3.555558059828125*^9, 3.555558128453125*^9}, {3.55555931990625*^9, 
+   3.555559358546875*^9}, {3.555560376703125*^9, 3.555560421765625*^9}, {
+   3.55556111140625*^9, 3.55556116328125*^9}}],
+
+Cell[BoxData[
+ RowBox[{"{", 
+  RowBox[{
+   RowBox[{
+    InterpretationBox[
+     RowBox[{"Re", "[", "a", "]"}],
+     $CellContext`TransformedParameter$3], "\[Rule]", "17.381`"}], ",", 
+   RowBox[{
+    InterpretationBox[
+     RowBox[{"Im", "[", "a", "]"}],
+     $CellContext`TransformedParameter$5], "\[Rule]", "53.249`"}], ",", 
+   RowBox[{
+    InterpretationBox[
+     RowBox[{"Re", "[", "b", "]"}],
+     $CellContext`TransformedParameter$4], "\[Rule]", "1.897`"}], ",", 
+   RowBox[{
+    InterpretationBox[
+     RowBox[{"Im", "[", "b", "]"}],
+     $CellContext`TransformedParameter$6], "\[Rule]", "0.632`"}]}], 
+  "}"}]], "Output",
+ CellChangeTimes->{
+  3.55639831278125*^9, 3.556398488984375*^9, 3.556398557421875*^9, 
+   3.55639860525*^9, {3.55639865540625*^9, 3.55639867584375*^9}, 
+   3.556398735640625*^9, 3.55639883596875*^9, 3.55639886809375*^9, 
+   3.55639901446875*^9, 3.556399125578125*^9, 3.556399471765625*^9, 
+   3.556399661546875*^9, 3.5563997278125*^9, 3.5564003729375*^9, 
+   3.556401343375*^9, 3.556401788890625*^9, 3.55640482909375*^9, 
+   3.556575267453125*^9, 3.55657584153125*^9, 3.55657613140625*^9, {
+   3.556576796015625*^9, 3.556576820421875*^9}, 3.556577824546875*^9, 
+   3.556752124265625*^9, 3.55675286234375*^9, 3.55675345821875*^9}]
+}, Open  ]],
+
+Cell[CellGroupData[{
+
+Cell[BoxData[
+ RowBox[{"ComplexFit", "[", "\[IndentingNewLine]", 
+  RowBox[{
+   RowBox[{"{", 
+    RowBox[{
+     RowBox[{"{", 
+      RowBox[{"0.0", ",", "100.0"}], "}"}], ",", 
+     RowBox[{"{", 
+      RowBox[{"0.02", ",", "81.87"}], "}"}], ",", 
+     RowBox[{"{", 
+      RowBox[{"0.04", ",", "67.03"}], "}"}], ",", 
+     RowBox[{"{", 
+      RowBox[{"0.06", ",", "54.88"}], "}"}], ",", 
+     RowBox[{"{", 
+      RowBox[{"0.08", ",", "44.93"}], "}"}], ",", 
+     RowBox[{"{", 
+      RowBox[{"0.10", ",", "36.76"}], "}"}]}], "}"}], ",", 
+   "\[IndentingNewLine]", 
+   RowBox[{"a", " ", 
+    RowBox[{"b", "^", "t"}]}], ",", 
+   RowBox[{"{", 
+    RowBox[{"a", ",", "b"}], "}"}], ",", "t", ",", "\[IndentingNewLine]", 
+   RowBox[{"\"\<CoordinateSystem\>\"", "\[Rule]", "\"\<Real\>\""}]}], 
+  "\[IndentingNewLine]", "]"}]], "Input",
+ CellChangeTimes->{{3.556575548796875*^9, 3.5565755989375*^9}}],
+
+Cell[BoxData[
+ RowBox[{"{", 
+  RowBox[{
+   RowBox[{
+    InterpretationBox[
+     RowBox[{"Re", "[", "a", "]"}],
+     $CellContext`TransformedParameter$3], "\[Rule]", "100.00370620723884`"}],
+    ",", 
+   RowBox[{
+    InterpretationBox[
+     RowBox[{"Re", "[", "b", "]"}],
+     $CellContext`TransformedParameter$4], "\[Rule]", 
+    "0.00004524926890755622`"}]}], "}"}]], "Output",
+ CellChangeTimes->{{3.556575591875*^9, 3.556575599390625*^9}, 
+   3.5565758415625*^9, 3.556576131421875*^9, {3.556576796046875*^9, 
+   3.5565768204375*^9}, 3.5565778245625*^9, 3.55675212428125*^9, 
+   3.556752862359375*^9, 3.55675345825*^9}]
+}, Open  ]],
+
+Cell[CellGroupData[{
+
+Cell[BoxData[
+ RowBox[{
+  RowBox[{"ComplexFit", "[", "\[IndentingNewLine]", 
+   RowBox[{
+    RowBox[{"Table", "[", 
+     RowBox[{
+      RowBox[{"{", 
+       RowBox[{"i", ",", 
+        RowBox[{"I", "+", 
+         RowBox[{"3", "*", 
+          RowBox[{"i", "^", "2"}], "I"}]}]}], "}"}], ",", 
+      RowBox[{"{", 
+       RowBox[{"i", ",", "0", ",", "10"}], "}"}]}], "]"}], ",", 
+    "\[IndentingNewLine]", 
+    RowBox[{"a", "+", 
+     RowBox[{"b", "*", 
+      RowBox[{"x", "^", "2"}], "I"}]}], ",", 
+    RowBox[{"{", 
+     RowBox[{"a", ",", "b"}], "}"}], ",", "x", ",", "\[IndentingNewLine]", 
+    RowBox[{"\"\<FitFunction\>\"", "\[Rule]", "NonlinearModelFit"}], ",", 
+    "\[IndentingNewLine]", 
+    RowBox[{"\"\<CoordinateSystem\>\"", "\[Rule]", "\"\<Polar\>\""}]}], 
+   "\[IndentingNewLine]", "]"}], "[", 
+  "\"\<ParameterConfidenceIntervalTable\>\"", "]"}]], "Input",
+ CellChangeTimes->{{3.555465240109375*^9, 3.555465254421875*^9}, {
+   3.555465294828125*^9, 3.55546531690625*^9}, {3.55546536775*^9, 
+   3.555465498296875*^9}, {3.55546561928125*^9, 3.555465639578125*^9}, {
+   3.555465672328125*^9, 3.55546570334375*^9}, {3.5554657811875*^9, 
+   3.555465799625*^9}, {3.555465952984375*^9, 3.555466032046875*^9}, {
+   3.5554663329375*^9, 3.5554664143125*^9}, {3.55546652259375*^9, 
+   3.555466634828125*^9}, {3.5554666695*^9, 3.55546667646875*^9}, {
+   3.555466788625*^9, 3.555466840015625*^9}, {3.555466874515625*^9, 
+   3.555466887015625*^9}, {3.5554687844375*^9, 3.5554687848125*^9}, {
+   3.555469885265625*^9, 3.555469912625*^9}, {3.555520825375*^9, 
+   3.55552082578125*^9}, {3.555554097703125*^9, 3.55555411828125*^9}, {
+   3.555558259640625*^9, 3.555558648375*^9}, {3.5555586909375*^9, 
+   3.55555870321875*^9}, {3.555558744828125*^9, 3.555558746984375*^9}, {
+   3.55555878371875*^9, 3.555558821109375*^9}, {3.5555588599375*^9, 
+   3.555559225109375*^9}, {3.555559748921875*^9, 3.555559749265625*^9}, 
+   3.555560678515625*^9, {3.555560733*^9, 3.555560768671875*^9}, {
+   3.55556086475*^9, 3.55556086803125*^9}, {3.555561155375*^9, 
+   3.55556116559375*^9}, {3.55560877525*^9, 3.555608782*^9}, {
+   3.55570590775*^9, 3.5557059139375*^9}, {3.5557080173125*^9, 
+   3.55570802128125*^9}, 3.555710329484375*^9, {3.555712955421875*^9, 
+   3.555712967234375*^9}, 3.555872966359375*^9, 3.555873069984375*^9, 
+   3.5561252271875*^9}],
+
+Cell[BoxData[
+ StyleBox[
+  TagBox[GridBox[{
+     {"\<\"\"\>", "\<\"Estimate\"\>", "\<\"Standard Error\"\>", \
+"\<\"Confidence Interval\"\>"},
+     {
+      InterpretationBox[
+       RowBox[{"Abs", "[", "a", "]"}],
+       $CellContext`TransformedParameter$7], "1.0000000000000013`", 
+      "2.953705168350233`*^-16", 
+      RowBox[{"{", 
+       RowBox[{"1.0000000000000007`", ",", "1.000000000000002`"}], "}"}]},
+     {
+      InterpretationBox[
+       RowBox[{"Arg", "[", "a", "]"}],
+       $CellContext`TransformedParameter$9], "1.5707963267948966`", 
+      "6.519556176805926`*^-16", 
+      RowBox[{"{", 
+       RowBox[{"1.5707963267948952`", ",", "1.570796326794898`"}], "}"}]},
+     {
+      InterpretationBox[
+       RowBox[{"Abs", "[", "b", "]"}],
+       $CellContext`TransformedParameter$8], "3.`", 
+      "6.1548882752670386`*^-18", 
+      RowBox[{"{", 
+       RowBox[{"3.`", ",", "3.`"}], "}"}]},
+     {
+      InterpretationBox[
+       RowBox[{"Arg", "[", "b", "]"}],
+       $CellContext`TransformedParameter$10], 
+      RowBox[{"-", "1.805537705113951`*^-17"}], "2.221343711593313`*^-16", 
+      RowBox[{"{", 
+       RowBox[{
+        RowBox[{"-", "4.847423733148618`*^-16"}], ",", 
+        "4.486316192125828`*^-16"}], "}"}]}
+    },
+    AutoDelete->False,
+    GridBoxAlignment->{"Columns" -> {{Left}}, "Rows" -> {{Automatic}}},
+    GridBoxDividers->{
+     "ColumnsIndexed" -> {2 -> GrayLevel[0.7]}, 
+      "RowsIndexed" -> {2 -> GrayLevel[0.7]}},
+    GridBoxItemSize->{"Columns" -> {{Automatic}}, "Rows" -> {{Automatic}}},
+    GridBoxSpacings->{
+     "ColumnsIndexed" -> {2 -> 1}, "RowsIndexed" -> {2 -> 0.75}}],
+   "Grid"], "DialogStyle",
+  StripOnInput->False]], "Output",
+ CellChangeTimes->{{3.55555917396875*^9, 3.5555592295625*^9}, 
+   3.555559360359375*^9, 3.55555957625*^9, 3.555559649234375*^9, {
+   3.555559729828125*^9, 3.55555975365625*^9}, 3.55556042496875*^9, 
+   3.555560680015625*^9, {3.55556073428125*^9, 3.555560772734375*^9}, {
+   3.555560869171875*^9, 3.55556087284375*^9}, 3.555561002375*^9, 
+   3.555561166203125*^9, 3.555608742109375*^9, 3.55560878253125*^9, 
+   3.555609253890625*^9, 3.5556101016875*^9, 3.55561039284375*^9, 
+   3.5556106423125*^9, 3.5556108889375*^9, 3.555610987578125*^9, 
+   3.555611038515625*^9, 3.5556110746875*^9, 3.55561142328125*^9, 
+   3.555615287484375*^9, 3.555638728046875*^9, 3.55566205678125*^9, 
+   3.555663227*^9, 3.555663316421875*^9, 3.555663422125*^9, 3.555663806125*^9,
+    3.55569604078125*^9, {3.55569614421875*^9, 3.555696167578125*^9}, 
+   3.555696862328125*^9, 3.5556970226875*^9, {3.555697147015625*^9, 
+   3.555697173046875*^9}, 3.555697954234375*^9, 3.555697986875*^9, 
+   3.5556981500625*^9, 3.555698242046875*^9, 3.5556983659375*^9, 
+   3.555698529171875*^9, 3.55569926021875*^9, 3.555699869578125*^9, {
+   3.555699969140625*^9, 3.555700034296875*^9}, 3.55570010965625*^9, 
+   3.55570021940625*^9, 3.55570171834375*^9, 3.55570177253125*^9, 
+   3.55570254590625*^9, 3.555705851171875*^9, 3.555705915078125*^9, 
+   3.555705989421875*^9, {3.55570800653125*^9, 3.555708022046875*^9}, 
+   3.55570834146875*^9, 3.55571010828125*^9, 3.55571033796875*^9, 
+   3.5557129686875*^9, 3.555789456421875*^9, 3.555789621265625*^9, 
+   3.555873087875*^9, 3.556000780087493*^9, 3.556124874078125*^9, 
+   3.55612954003125*^9, 3.5561332985*^9, 3.5561378585625*^9, 
+   3.55613889803125*^9, 3.55613921403125*^9, 3.556141822578125*^9, 
+   3.5563035613125*^9, 3.556387492671875*^9, 3.556388118109375*^9, {
+   3.5563982950625*^9, 3.55639831284375*^9}, 3.55639848903125*^9, 
+   3.556398557484375*^9, 3.5563986053125*^9, {3.556398655453125*^9, 
+   3.556398675890625*^9}, 3.55639873571875*^9, 3.556398836015625*^9, 
+   3.556398873171875*^9, 3.556399014515625*^9, 3.556399125640625*^9, 
+   3.5563994718125*^9, 3.556399661609375*^9, 3.556399727890625*^9, 
+   3.556400373*^9, 3.556401343421875*^9, 3.5564017889375*^9, 
+   3.55640482915625*^9, 3.55657526753125*^9, 3.556575841625*^9, 
+   3.556576131484375*^9, {3.556576796125*^9, 3.5565768205*^9}, 
+   3.556577824609375*^9, 3.556752124734375*^9, 3.5567528624375*^9, 
+   3.556753458296875*^9}]
+}, Open  ]],
+
+Cell[CellGroupData[{
+
+Cell[BoxData[
+ RowBox[{
+  RowBox[{"ComplexFit", "[", "\[IndentingNewLine]", 
+   RowBox[{
+    RowBox[{"Table", "[", 
+     RowBox[{
+      RowBox[{"{", 
+       RowBox[{"i", ",", 
+        RowBox[{"1", "/", 
+         RowBox[{"(", 
+          RowBox[{"I", "+", 
+           RowBox[{"3", "*", 
+            RowBox[{"i", "^", "2"}], "I"}]}], ")"}]}]}], "}"}], ",", 
+      RowBox[{"{", 
+       RowBox[{"i", ",", "0", ",", "10"}], "}"}]}], "]"}], ",", 
+    "\[IndentingNewLine]", 
+    RowBox[{"1", "/", 
+     RowBox[{"(", 
+      RowBox[{"a", "+", 
+       RowBox[{"b", "*", 
+        RowBox[{"x", "^", "2"}], "I"}]}], ")"}]}], ",", 
+    RowBox[{"{", 
+     RowBox[{"a", ",", "b"}], "}"}], ",", "x", ",", "\[IndentingNewLine]", 
+    RowBox[{"\"\<FitFunction\>\"", "\[Rule]", "NonlinearModelFit"}]}], 
+   "\[IndentingNewLine]", "]"}], "[", 
+  "\"\<ParameterConfidenceIntervalTable\>\"", "]"}]], "Input",
+ CellChangeTimes->{{3.555465240109375*^9, 3.555465254421875*^9}, {
+   3.555465294828125*^9, 3.55546531690625*^9}, {3.55546536775*^9, 
+   3.555465498296875*^9}, {3.55546561928125*^9, 3.555465639578125*^9}, {
+   3.555465672328125*^9, 3.55546570334375*^9}, {3.5554657811875*^9, 
+   3.555465799625*^9}, {3.555465952984375*^9, 3.555466032046875*^9}, {
+   3.5554663329375*^9, 3.5554664143125*^9}, {3.55546652259375*^9, 
+   3.555466634828125*^9}, {3.5554666695*^9, 3.55546667646875*^9}, {
+   3.555466788625*^9, 3.555466840015625*^9}, {3.555466874515625*^9, 
+   3.555466887015625*^9}, {3.5554687844375*^9, 3.5554687848125*^9}, {
+   3.555469885265625*^9, 3.555469912625*^9}, {3.555520825375*^9, 
+   3.55552082578125*^9}, {3.555554097703125*^9, 3.55555411828125*^9}, {
+   3.555558259640625*^9, 3.555558648375*^9}, {3.5555586909375*^9, 
+   3.55555870321875*^9}, {3.555558744828125*^9, 3.555558746984375*^9}, {
+   3.55555878371875*^9, 3.555558821109375*^9}, {3.5555588599375*^9, 
+   3.555559155984375*^9}, {3.555559747328125*^9, 3.55555974775*^9}, 
+   3.55556069334375*^9, {3.555560741875*^9, 3.555560769828125*^9}, {
+   3.5555608038125*^9, 3.555560828125*^9}, {3.555561007703125*^9, 
+   3.55556102746875*^9}, {3.555561181453125*^9, 3.55556118440625*^9}, {
+   3.555561218828125*^9, 3.555561226421875*^9}, {3.555608740234375*^9, 
+   3.555608767984375*^9}, {3.555611000734375*^9, 3.555611007140625*^9}, 
+   3.555611061421875*^9, 3.555710330171875*^9, 3.555872967109375*^9, 
+   3.556125227890625*^9}],
+
+Cell[BoxData[
+ StyleBox[
+  TagBox[GridBox[{
+     {"\<\"\"\>", "\<\"Estimate\"\>", "\<\"Standard Error\"\>", \
+"\<\"Confidence Interval\"\>"},
+     {
+      InterpretationBox[
+       RowBox[{"Re", "[", "a", "]"}],
+       $CellContext`TransformedParameter$3], "3.196254452347138`*^-23", 
+      "4.132650114325803`*^-21", 
+      RowBox[{"{", 
+       RowBox[{
+        RowBox[{"-", "8.650413165268253`*^-21"}], ",", 
+        "8.714338254315196`*^-21"}], "}"}]},
+     {
+      InterpretationBox[
+       RowBox[{"Im", "[", "a", "]"}],
+       $CellContext`TransformedParameter$11], "1.`", 
+      "4.132650175888174`*^-21", 
+      RowBox[{"{", 
+       RowBox[{"1.`", ",", "1.`"}], "}"}]},
+     {
+      InterpretationBox[
+       RowBox[{"Re", "[", "b", "]"}],
+       $CellContext`TransformedParameter$4], "3.`", "6.051831136439662`*^-20", 
+      RowBox[{"{", 
+       RowBox[{"3.`", ",", "3.`"}], "}"}]},
+     {
+      InterpretationBox[
+       RowBox[{"Im", "[", "b", "]"}],
+       $CellContext`TransformedParameter$12], "2.563330483948`*^-19", 
+      "6.051831071742674`*^-20", 
+      RowBox[{"{", 
+       RowBox[{"1.2918879557040275`*^-19", ",", "3.8347730121919726`*^-19"}], 
+       "}"}]}
+    },
+    AutoDelete->False,
+    GridBoxAlignment->{"Columns" -> {{Left}}, "Rows" -> {{Automatic}}},
+    GridBoxDividers->{
+     "ColumnsIndexed" -> {2 -> GrayLevel[0.7]}, 
+      "RowsIndexed" -> {2 -> GrayLevel[0.7]}},
+    GridBoxItemSize->{"Columns" -> {{Automatic}}, "Rows" -> {{Automatic}}},
+    GridBoxSpacings->{
+     "ColumnsIndexed" -> {2 -> 1}, "RowsIndexed" -> {2 -> 0.75}}],
+   "Grid"], "DialogStyle",
+  StripOnInput->False]], "Output",
+ CellChangeTimes->{
+  3.555465255125*^9, {3.555465301390625*^9, 3.5554653175*^9}, 
+   3.555465371078125*^9, {3.5554654053125*^9, 3.55546552565625*^9}, {
+   3.555465597625*^9, 3.55546564*^9}, {3.555465673546875*^9, 
+   3.5554657041875*^9}, {3.55546578490625*^9, 3.555465833296875*^9}, {
+   3.55546595040625*^9, 3.555466032421875*^9}, 3.555466280515625*^9, {
+   3.55546633428125*^9, 3.5554664430625*^9}, {3.555466529875*^9, 
+   3.55546663915625*^9}, 3.5554666829375*^9, {3.55546678890625*^9, 
+   3.55546684459375*^9}, {3.55546688221875*^9, 3.555466894671875*^9}, 
+   3.555468876203125*^9, 3.555469086796875*^9, 3.555469127203125*^9, {
+   3.5554698873125*^9, 3.55546993578125*^9}, 3.555520117796875*^9, 
+   3.555520826140625*^9, 3.555520976890625*^9, 3.555521591609375*^9, 
+   3.555523396265625*^9, 3.55552344109375*^9, 3.55552835465625*^9, 
+   3.555528963140625*^9, 3.5555290898125*^9, 3.55553002440625*^9, 
+   3.55553096134375*^9, 3.55553235709375*^9, {3.55553914896875*^9, 
+   3.55553915890625*^9}, 3.55554413465625*^9, {3.555547365328125*^9, 
+   3.555547384578125*^9}, {3.555548715265625*^9, 3.55554872346875*^9}, {
+   3.5555488048125*^9, 3.55554882353125*^9}, 3.555549327484375*^9, {
+   3.55554938371875*^9, 3.555549439703125*^9}, {3.555549623453125*^9, 
+   3.55554963115625*^9}, 3.55554973809375*^9, 3.555549913203125*^9, 
+   3.555550369703125*^9, 3.55555390134375*^9, 3.55555401840625*^9, {
+   3.555554098625*^9, 3.555554118734375*^9}, 3.555554355578125*^9, {
+   3.5555543891875*^9, 3.555554438984375*^9}, {3.555558259953125*^9, 
+   3.55555827403125*^9}, {3.55555830925*^9, 3.555558649234375*^9}, {
+   3.55555869721875*^9, 3.555558704078125*^9}, 3.55555874740625*^9, {
+   3.555558787203125*^9, 3.55555882221875*^9}, {3.55555886896875*^9, 
+   3.555558977640625*^9}, {3.555559019484375*^9, 3.555559157234375*^9}, {
+   3.55555920971875*^9, 3.555559230421875*^9}, 3.555559361203125*^9, 
+   3.555559577078125*^9, 3.555559650078125*^9, {3.555559730671875*^9, 
+   3.55555975446875*^9}, 3.555560425796875*^9, 3.55556069434375*^9, {
+   3.555560744734375*^9, 3.55556077040625*^9}, {3.555560804828125*^9, 
+   3.5555608289375*^9}, {3.555560870703125*^9, 3.555560873046875*^9}, {
+   3.5555610025625*^9, 3.55556102840625*^9}, 3.555561185328125*^9, {
+   3.5555612221875*^9, 3.555561226828125*^9}, {3.555608742328125*^9, 
+   3.555608769*^9}, 3.555609254078125*^9, 3.555610101875*^9, 
+   3.55561039315625*^9, 3.555610642734375*^9, 3.555610889359375*^9, {
+   3.555610987625*^9, 3.55561100775*^9}, {3.5556110385625*^9, 
+   3.555611074734375*^9}, 3.55561142334375*^9, 3.55561528753125*^9, 
+   3.555638728109375*^9, 3.555662056828125*^9, 3.555663227046875*^9, 
+   3.55566331646875*^9, 3.555663422171875*^9, 3.555663806171875*^9, 
+   3.555696040859375*^9, {3.555696144265625*^9, 3.55569616765625*^9}, 
+   3.555696862375*^9, 3.555697022734375*^9, {3.5556971470625*^9, 
+   3.555697173140625*^9}, 3.55569795428125*^9, 3.555697986921875*^9, 
+   3.555698150140625*^9, 3.555698242109375*^9, 3.555698366015625*^9, 
+   3.55569852921875*^9, 3.555699260265625*^9, 3.555699869640625*^9, {
+   3.5556999691875*^9, 3.55570003434375*^9}, 3.555700109703125*^9, 
+   3.555700219453125*^9, 3.555701718390625*^9, 3.555701772578125*^9, 
+   3.555702545953125*^9, 3.55570585121875*^9, 3.555705989453125*^9, 
+   3.55570800659375*^9, 3.5557083415*^9, 3.555710108328125*^9, 
+   3.555710338015625*^9, 3.555712968734375*^9, 3.55578945646875*^9, 
+   3.555789621296875*^9, 3.555873087953125*^9, 3.556000780149995*^9, 
+   3.556124874125*^9, 3.556129540078125*^9, 3.55613329853125*^9, 
+   3.556137858609375*^9, 3.5561388980625*^9, 3.556139214078125*^9, 
+   3.556141822625*^9, 3.556303561375*^9, 3.556387492734375*^9, 
+   3.55638811815625*^9, {3.556398295078125*^9, 3.556398312890625*^9}, 
+   3.5563984890625*^9, 3.556398557515625*^9, 3.556398605359375*^9, {
+   3.5563986555*^9, 3.5563986759375*^9}, 3.556398735765625*^9, 
+   3.5563988360625*^9, 3.556398873953125*^9, 3.556399014578125*^9, 
+   3.5563991256875*^9, 3.55639947184375*^9, 3.55639966165625*^9, 
+   3.556399727921875*^9, 3.556400373046875*^9, 3.55640134346875*^9, 
+   3.556401788984375*^9, 3.5564048291875*^9, 3.556575267578125*^9, 
+   3.55657584165625*^9, 3.556576131515625*^9, {3.556576796171875*^9, 
+   3.55657682053125*^9}, 3.55657782465625*^9, 3.556752124796875*^9, 
+   3.5567528625*^9, 3.55675345834375*^9}]
+}, Open  ]]
+},
+WindowSize->{919, 867},
+WindowMargins->{{Automatic, 146}, {Automatic, 19}},
+ShowSelection->True,
+FrontEndVersion->"8.0 for Microsoft Windows (64-bit) (October 6, 2011)",
+StyleDefinitions->"Default.nb"
+]
+(* End of Notebook Content *)
+
+(* Internal cache information *)
+(*CellTagsOutline
+CellTagsIndex->{}
+*)
+(*CellTagsIndex
+CellTagsIndex->{}
+*)
+(*NotebookFileOutline
+Notebook[{
+Cell[557, 20, 26729, 609, 3592, "Input",
+ InitializationCell->True],
+Cell[27289, 631, 1024, 22, 107, "Text"],
+Cell[CellGroupData[{
+Cell[28338, 657, 1571, 31, 92, "Input"],
+Cell[29912, 690, 1438, 33, 30, "Output"]
+}, Open  ]],
+Cell[CellGroupData[{
+Cell[31387, 728, 1672, 36, 92, "Input"],
+Cell[33062, 766, 1318, 32, 30, "Output"]
+}, Open  ]],
+Cell[CellGroupData[{
+Cell[34417, 803, 2140, 49, 92, "Input"],
+Cell[36560, 854, 1261, 29, 30, "Output"]
+}, Open  ]],
+Cell[CellGroupData[{
+Cell[37858, 888, 889, 24, 112, "Input"],
+Cell[38750, 914, 620, 16, 30, "Output"]
+}, Open  ]],
+Cell[CellGroupData[{
+Cell[39407, 935, 2332, 45, 132, "Input"],
+Cell[41742, 982, 4087, 81, 109, "Output"]
+}, Open  ]],
+Cell[CellGroupData[{
+Cell[45866, 1068, 2371, 47, 112, "Input"],
+Cell[48240, 1117, 5952, 109, 113, "Output"]
+}, Open  ]]
+}
+]
+*)
+
+(* End of internal cache information *)
